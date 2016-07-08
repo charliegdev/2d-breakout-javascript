@@ -1,10 +1,17 @@
 let canvas = document.getElementById("game-region"),
     ctx = canvas.getContext("2d"),
+    // starting point of the ball
     x = canvas.width/2,
-    y = canvas.height-30,
-    dx = 0.5,
-    dy = -0.5,
-    ballRadius = 20;
+    y = canvas.height - 60,
+    // ball moving speed
+    dx = 2,
+    dy = -2,
+    ballRadius = 20,
+    // paddle dimension and starting x position
+    paddleHeight = 10,
+    paddleWidth = 150, 
+    paddleX = (canvas.width - paddleWidth) / 2;
+
 
 function drawBall() {
     "use strict";
@@ -15,12 +22,24 @@ function drawBall() {
     ctx.closePath();
 }
 
+
+function drawPaddle() {
+    "use strict";
+    ctx.beginPath();
+    ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+}
+
+
+let counter = 0;
+// main draw function, called once every 5ms.
 function draw() {
     "use strict";
+    // clear the canvas at the start of each frame
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall();
-    x += dx;
-    y += dy;
 
     // collision detection for x direction
     if ((x + dx > canvas.width - ballRadius) || (x + dx < ballRadius)) {
@@ -33,6 +52,15 @@ function draw() {
         // keep the x direction going, but reverse the y direction
         dy = -dy;
     }
+
+    x += dx;
+    y += dy;
+    
+    counter++;
+    if (counter % 10 === 0) {
+        console.log(counter);
+    }
+
 }
-window.setInterval(draw, 5);
+window.setInterval(draw, 10);
 
