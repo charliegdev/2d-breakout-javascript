@@ -13,9 +13,13 @@ dx = 2,
     ballRadius = 20,
 
 // paddle dimension and starting x position
-paddleHeight = 10,
-    paddleWidth = 150,
-    paddleX = (canvas.width - paddleWidth) / 2;
+paddleHeight = 15,
+    paddleWidth = 200,
+    paddleX = (canvas.width - paddleWidth) / 2,
+
+// handle keyboard press
+rightPressed = false,
+    leftPressed = false;
 
 function drawBall() {
     "use strict";
@@ -46,17 +50,25 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall();
 
-    // collision detection for x direction
+    // collision detection for x direction (ball)
     if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
         // keep the y direction going, but reverse the x direction
         dx = -dx;
     }
 
-    // collision detection for y direction
+    // collision detection for y direction (ball)
     if (y + dy > canvas.height - ballRadius || y + dy < ballRadius) {
         // keep the x direction going, but reverse the y direction
         dy = -dy;
     }
+
+    // movement and collision detection for pedal (horizontally)
+    if (rightPressed && paddleX < canvas.width - paddleWidth) {
+        paddleX += 7;
+    } else if (leftPressed && paddleX > 0) {
+        paddleX -= 7;
+    }
+    drawPaddle();
 
     x += dx;
     y += dy;
@@ -64,6 +76,29 @@ function draw() {
     counter++;
     if (counter % 10 === 0) {
         console.log(counter);
+    }
+}
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+function keyDownHandler(e) {
+    "use strict";
+
+    if (e.keyCode === 39) {
+        rightPressed = true;
+    } else if (e.keyCode === 37) {
+        leftPressed = true;
+    }
+}
+
+function keyUpHandler(e) {
+    "use strict";
+
+    if (e.keyCode === 39) {
+        rightPressed = false;
+    } else if (e.keyCode === 37) {
+        leftPressed = false;
     }
 }
 window.setInterval(draw, 10);
