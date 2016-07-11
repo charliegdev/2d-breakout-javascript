@@ -2,7 +2,7 @@
 
 This is a 2D Breakout Game, developed using vanilla Javascript (ES6).
 
-![current stage](status-july-4th.png)
+![current stage](status-july-10th.png)
 
 Besides the game itself, there are 2 other goals:
 
