@@ -1,3 +1,14 @@
+const BALL_RADIUS = 20,
+    PADDLE_HEIGHT = 15,
+    PADDLE_WIDTH = 200, 
+    BRICK_WIDTH = 140,
+    BRICK_HEIGHT = 40,
+    BRICK_PADDING = 10,
+    BRICK_OFFSET_TOP = 30,
+    BRICK_OFFSET_LEFT = 30,
+    BRICK_ROW_COUNT = 3,
+    BRICK_COLUMN_COUNT = 6;
+
 let canvas = document.getElementById("game-region"),
     ctx = canvas.getContext("2d"),
     // starting point of the ball
@@ -6,20 +17,49 @@ let canvas = document.getElementById("game-region"),
     // ball moving speed
     dx = 2,
     dy = -2,
-    ballRadius = 20,
-    // paddle dimension and starting x position
-    paddleHeight = 15,
-    paddleWidth = 200, 
-    paddleX = (canvas.width - paddleWidth) / 2,
-    // handle keyboard press
+    // paddle starting x position
+    paddleX = (canvas.width - PADDLE_WIDTH) / 2,
+    // handle keyboard press, used for paddle moving
     rightPressed = false,
     leftPressed = false;
+
+// initiate bricks 2D array 
+let bricks = [];
+for (let col = 0; col < BRICK_COLUMN_COUNT; col++) {
+    // each brick column has 1 brick row
+    bricks[col] = [];
+    for (let row = 0; row < BRICK_ROW_COUNT; row++) {
+        // each brick row contains a brick cell, with inital x, y
+        bricks[col][row] = { x: 0, y: 0 };
+    }
+}
+
+function drawBricks() {
+    "use strict";
+    let brickX = 0,
+        brickY = 0;
+    for (let col = 0; col < BRICK_COLUMN_COUNT; col++) {
+        for (let row = 0; row < BRICK_ROW_COUNT; row++) {
+            // determine the new brick x, y coord
+            brickX = (col * (BRICK_WIDTH + BRICK_PADDING)) + BRICK_OFFSET_LEFT;
+            brickY = (row * (BRICK_HEIGHT + BRICK_PADDING)) + BRICK_OFFSET_TOP;
+            bricks[col][row].x = brickX;
+            bricks[col][row].y = brickY;
+            ctx.beginPath();
+            ctx.rect(brickX, brickY, BRICK_WIDTH, BRICK_HEIGHT);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+        }
+    }
+}
+
 
 
 function drawBall() {
     "use strict";
     ctx.beginPath();
-    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+    ctx.arc(x, y, BALL_RADIUS, 0, Math.PI*2);
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
@@ -29,7 +69,7 @@ function drawBall() {
 function drawPaddle() {
     "use strict";
     ctx.beginPath();
-    ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+    ctx.rect(paddleX, canvas.height - PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_HEIGHT);
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
@@ -42,36 +82,42 @@ function draw() {
     "use strict";
     // clear the canvas at the start of each frame
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBricks();
     drawBall();
+    drawPaddle();
 
-    // collision detection for x direction (ball)
-    if ((x + dx > canvas.width - ballRadius) || (x + dx < ballRadius)) {
+    // bounce the ball left and right
+    if ((x + dx > canvas.width - BALL_RADIUS) || (x + dx < BALL_RADIUS)) {
         // keep the y direction going, but reverse the x direction
         dx = -dx;
     }
 
-    // collision detection for y direction (ball)
-    if ((y + dy > canvas.height - ballRadius) || (y + dy < ballRadius)) {
-        // keep the x direction going, but reverse the y direction
+    // bounce ball on top
+    if (y + dy < BALL_RADIUS) {
         dy = -dy;
+    } else if (y + dy > canvas.height - BALL_RADIUS) {
+        // when ball hits bottom, determine if the ball's x coord is within paddle's 
+        // left and right X. 
+        if (x > paddleX && x < paddleX + PADDLE_WIDTH) {
+            // if yes, bounce it up again.
+            dy = -dy;
+        } else {
+            // if no, game over. 
+            // TODO: better game over mechanics.
+            alert("Game over");
+            document.location.reload();
+        }
     }
 
     // movement and collision detection for pedal (horizontally)
-    if (rightPressed && paddleX < canvas.width-paddleWidth) {
+    if (rightPressed && paddleX < canvas.width-PADDLE_WIDTH) {
         paddleX += 7;
     } else if (leftPressed && paddleX > 0) {
         paddleX -= 7;
     }
-    drawPaddle();
 
     x += dx;
     y += dy;
-    
-    counter++;
-    if (counter % 10 === 0) {
-        console.log(counter);
-    }
-
 }
 
 document.addEventListener("keydown", keyDownHandler, false);
