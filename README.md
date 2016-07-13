@@ -1,6 +1,8 @@
-# 2d Breakout Javascript
+# 2D Breakout Javascript
 
 This is a 2D Breakout Game, developed using vanilla Javascript (ES6).
+
+[Play it here!](http://charliegdev.github.io/2d-breakout-javascript)
 
 ![current stage](status-july-10th.png)
 
