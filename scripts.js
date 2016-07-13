@@ -11,7 +11,7 @@ const BALL_RADIUS = 20,
 
 let canvas = document.getElementById("game-region"),
     ctx = canvas.getContext("2d"),
-    // starting point of the ball
+    // center of the ball, initial location of the ball
     x = canvas.width/2,
     y = canvas.height - 60,
     // ball moving speed
@@ -30,7 +30,7 @@ for (let col = 0; col < BRICK_COLUMN_COUNT; col++) {
     bricks[col] = [];
     for (let row = 0; row < BRICK_ROW_COUNT; row++) {
         // each brick row contains a brick cell, with inital x, y
-        bricks[col][row] = { x: 0, y: 0 };
+        bricks[col][row] = { x: 0, y: 0, status: 1 };
     }
 }
 
@@ -41,15 +41,17 @@ function drawBricks() {
     for (let col = 0; col < BRICK_COLUMN_COUNT; col++) {
         for (let row = 0; row < BRICK_ROW_COUNT; row++) {
             // determine the new brick x, y coord
-            brickX = (col * (BRICK_WIDTH + BRICK_PADDING)) + BRICK_OFFSET_LEFT;
-            brickY = (row * (BRICK_HEIGHT + BRICK_PADDING)) + BRICK_OFFSET_TOP;
-            bricks[col][row].x = brickX;
-            bricks[col][row].y = brickY;
-            ctx.beginPath();
-            ctx.rect(brickX, brickY, BRICK_WIDTH, BRICK_HEIGHT);
-            ctx.fillStyle = "#0095DD";
-            ctx.fill();
-            ctx.closePath();
+            if (bricks[col][row].status === 1) {
+                brickX = (col * (BRICK_WIDTH + BRICK_PADDING)) + BRICK_OFFSET_LEFT;
+                brickY = (row * (BRICK_HEIGHT + BRICK_PADDING)) + BRICK_OFFSET_TOP;
+                bricks[col][row].x = brickX;
+                bricks[col][row].y = brickY;
+                ctx.beginPath();
+                ctx.rect(brickX, brickY, BRICK_WIDTH, BRICK_HEIGHT);
+                ctx.fillStyle = "#0095DD";
+                ctx.fill();
+                ctx.closePath();
+            }
         }
     }
 }
@@ -76,7 +78,50 @@ function drawPaddle() {
 }
 
 
-let counter = 0;
+function collisionDetection() {
+    // Do collision detection by calculating if the center of the ball is inside
+    // any brick, for every frame.
+    "use strict";
+    let b;
+
+    for (let col = 0; col < BRICK_COLUMN_COUNT; col++) {
+        for (let row = 0; row < BRICK_ROW_COUNT; row++) {
+            b = bricks[col][row];
+            // if ball's center is inside any brick
+            if (x > b.x && x < b.x + BRICK_WIDTH && 
+                y > b.y && y < b.y + BRICK_HEIGHT && b.status === 1) {
+                dy = -dy;
+                b.status = 0;
+            }
+
+
+
+        }
+    }
+}
+
+// handles keyboard arrows
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+function keyDownHandler(e) {
+    "use strict";
+    if (e.keyCode === 39) {
+        rightPressed = true;
+    } else if (e.keyCode === 37) {
+        leftPressed = true;
+    }
+}
+
+function keyUpHandler(e) {
+    "use strict";
+    if (e.keyCode === 39) {
+        rightPressed = false;
+    } else if (e.keyCode === 37) {
+        leftPressed = false;
+    }
+}
+
 // main draw function, called once every 5ms.
 function draw() {
     "use strict";
@@ -85,6 +130,8 @@ function draw() {
     drawBricks();
     drawBall();
     drawPaddle();
+
+    collisionDetection();
 
     // bounce the ball left and right
     if ((x + dx > canvas.width - BALL_RADIUS) || (x + dx < BALL_RADIUS)) {
@@ -109,6 +156,7 @@ function draw() {
         }
     }
 
+
     // movement and collision detection for pedal (horizontally)
     if (rightPressed && paddleX < canvas.width-PADDLE_WIDTH) {
         paddleX += 7;
@@ -120,25 +168,4 @@ function draw() {
     y += dy;
 }
 
-document.addEventListener("keydown", keyDownHandler, false);
-document.addEventListener("keyup", keyUpHandler, false);
-
-function keyDownHandler(e) {
-    "use strict";
-    if (e.keyCode === 39) {
-        rightPressed = true;
-    } else if (e.keyCode === 37) {
-        leftPressed = true;
-    }
-}
-
-function keyUpHandler(e) {
-    "use strict";
-    if (e.keyCode === 39) {
-        rightPressed = false;
-    } else if (e.keyCode === 37) {
-        leftPressed = false;
-    }
-}
 window.setInterval(draw, 10);
-
