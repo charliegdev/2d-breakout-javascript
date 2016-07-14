@@ -21,7 +21,8 @@ let canvas = document.getElementById("game-region"),
     paddleX = (canvas.width - PADDLE_WIDTH) / 2,
     // handle keyboard press, used for paddle moving
     rightPressed = false,
-    leftPressed = false;
+    leftPressed = false,
+    score = 0;
 
 // initiate bricks 2D array 
 let bricks = [];
@@ -92,12 +93,23 @@ function collisionDetection() {
                 y > b.y && y < b.y + BRICK_HEIGHT && b.status === 1) {
                 dy = -dy;
                 b.status = 0;
+                score++;
+                if (score === BRICK_ROW_COUNT * BRICK_COLUMN_COUNT) {
+                    alert("You win, congratulations!");
+                }
             }
 
 
 
         }
     }
+}
+
+function drawScore() {
+    "use strict";
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("Score: " + score, 8, 20);
 }
 
 // handles keyboard arrows
@@ -130,6 +142,7 @@ function draw() {
     drawBricks();
     drawBall();
     drawPaddle();
+    drawScore();
 
     collisionDetection();
 
@@ -148,12 +161,7 @@ function draw() {
         if (x > paddleX && x < paddleX + PADDLE_WIDTH) {
             // if yes, bounce it up again.
             dy = -dy;
-        } else {
-            // if no, game over. 
-            // TODO: better game over mechanics.
-            alert("Game over");
-            document.location.reload();
-        }
+        } 
     }
 
 
