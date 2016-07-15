@@ -15,14 +15,15 @@ let canvas = document.getElementById("game-region"),
     x = canvas.width/2,
     y = canvas.height - 60,
     // ball moving speed
-    dx = 2,
-    dy = -2,
+    dx = 4,
+    dy = -4,
     // paddle starting x position
     paddleX = (canvas.width - PADDLE_WIDTH) / 2,
     // handle keyboard press, used for paddle moving
     rightPressed = false,
     leftPressed = false,
-    score = 0;
+    score = 0,
+    lives = 3;
 
 // initiate bricks 2D array 
 let bricks = [];
@@ -78,6 +79,19 @@ function drawPaddle() {
     ctx.closePath();
 }
 
+function drawScore() {
+    "use strict";
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("Score: " + score, 8, 20);
+}
+
+function drawLives() {
+    "use strict";
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("Lives: " + lives, canvas.width - 65, 20);
+}
 
 function collisionDetection() {
     // Do collision detection by calculating if the center of the ball is inside
@@ -98,23 +112,16 @@ function collisionDetection() {
                     alert("You win, congratulations!");
                 }
             }
-
-
-
         }
     }
 }
 
-function drawScore() {
-    "use strict";
-    ctx.font = "16px Arial";
-    ctx.fillStyle = "#0095DD";
-    ctx.fillText("Score: " + score, 8, 20);
-}
 
-// handles keyboard arrows
+// handle keyboard arrows
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
+// handle mouse movement
+document.addEventListener("mousemove", mouseMoveHandler, false);
 
 function keyDownHandler(e) {
     "use strict";
@@ -134,6 +141,14 @@ function keyUpHandler(e) {
     }
 }
 
+function mouseMoveHandler(e) {
+    "use strict";
+    let relativeX = e.clientX - canvas.offsetLeft;
+    if (relativeX > 0 && relativeX < canvas.width) {
+        paddleX = relativeX - PADDLE_WIDTH/2;
+    }
+}
+
 // main draw function, called once every 5ms.
 function draw() {
     "use strict";
@@ -143,6 +158,7 @@ function draw() {
     drawBall();
     drawPaddle();
     drawScore();
+    drawLives();
 
     collisionDetection();
 
@@ -161,9 +177,21 @@ function draw() {
         if (x > paddleX && x < paddleX + PADDLE_WIDTH) {
             // if yes, bounce it up again.
             dy = -dy;
-        } 
-    }
+        } else {
+            // life
+            lives--;
+            if (!lives) {
+                alert("GAME OVER");
+            } else {
+                x = canvas.width / 2;
+                y = canvas.height - 30;
+                dx = 4;
+                dy = -4;
+                paddleX = (canvas.width - PADDLE_WIDTH) / 2;
+            }
+        }
 
+    }
 
     // movement and collision detection for pedal (horizontally)
     if (rightPressed && paddleX < canvas.width-PADDLE_WIDTH) {
@@ -174,6 +202,8 @@ function draw() {
 
     x += dx;
     y += dy;
+
+    requestAnimationFrame(draw);
 }
 
-window.setInterval(draw, 10);
+draw();
