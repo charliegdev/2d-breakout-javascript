@@ -22,13 +22,13 @@ However if you want to fork/download, and modify the code, here are some details
 
 Script I wrote is inside `scripts.js`; however Babel transpiled it into ES 5.1 and put all output inside `prod.js`. `index.html` uses `prod.js` instead of `scripts.js`.
 
-First, do
+**First**, do
 
 ```npm install```
 
 inside root directory; `npm`, which is NodeJS' package management software, will read `package.json` in root directory, and install all development dependencies. Depending on your machine, you might need to install npm first.
 
-Then, type this your terminal:
+**Then**, type this your terminal:
 
 ```node_modules/.bin/babel scripts.js --watch --out-file prod.js```
 
